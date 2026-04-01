@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   basePath: "/teamoreview",
+  trailingSlash: true,
   output: "standalone",
   async rewrites() {
     return [
