@@ -1,0 +1,54 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: teamoreview-backend
+    restart: unless-stopped
+    volumes:
+      - lobster_data:/app/data
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - codepulse-survey_default
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: teamoreview-frontend
+    restart: unless-stopped
+    environment:
+      - BACKEND_HOST=teamoreview-backend
+      - HOSTNAME=0.0.0.0
+    expose:
+      - "3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - codepulse-survey_default
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  lobster_data:
+
+networks:
+  codepulse-survey_default:
+    external: true
